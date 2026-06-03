@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebGIS Sederhana</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet"
+          href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 40px;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        /* ======================
+           CARD PROFILE
+        ====================== */
+        .profile-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .profile-info h1 {
+            margin-top: 0;
+        }
+
+        .profile-photo {
+            text-align: center;
+        }
+
+        .profile-photo img {
+            width: 150px;
+            border-radius: 10px;
+        }
+
+        .profile-photo a {
+            display: inline-block;
+            margin-top: 10px;
+
+            padding: 8px 15px;
+            background-color: #007bff;
+            color: white;
+
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .profile-photo a:hover {
+            background-color: #0056b3;
+        }
+
+        /* ======================
+           MAP SECTION
+        ====================== */
+        .map-section {
+            margin-top: 30px;
+
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        #map {
+            width: 100%;
+            height: 500px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- PROFILE -->
+        <div class="profile-card">
+
+            <div class="profile-info">
+                <h1>Profil Mahasiswa</h1>
+
+                <p><strong>Nama:</strong> Andi</p>
+                <p><strong>NIM:</strong> 123456</p>
+            </div>
+
+            <div class="profile-photo">
+
+                <img src="assets/person.png"
+                     alt="Foto Mahasiswa">
+
+                <br>
+
+                <a href="https://github.com/agungpambudi-dev"
+                   target="_blank">
+                    Profile
+                </a>
+
+            </div>
+
+        </div>
+
+        <!-- MAP -->
+        <div class="map-section">
+
+            <h2>Peta WebGIS</h2>
+
+            <div id="map"></div>
+
+        </div>
+
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <script>
+
+        // ======================
+        // INISIALISASI MAP
+        // ======================
+
+        var map = L.map('map').setView([-5.45, 105.266], 13);
+
+        // ======================
+        // BASEMAP OSM
+        // ======================
+
+        L.tileLayer(
+            'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            {
+                attribution:
+                    '&copy; OpenStreetMap Contributors'
+            }
+        ).addTo(map);
+
+        // ======================
+        // MARKER
+        // ======================
+
+        L.marker([-5.45, 105.266])
+            .addTo(map)
+            .bindPopup('Lokasi Mahasiswa')
+            .openPopup();
+
+        // ======================
+        // LOAD GEOJSON
+        // ======================
+
+        fetch('data/maps-id.json')
+
+            .then(function(response) {
+                return response.json();
+            })
+
+            .then(function(data) {
+
+                // Tambahkan GeoJSON ke map
+                L.geoJSON(data, {
+
+                    // Styling polygon
+                    style: function(feature) {
+                        return {
+                            color: '#444',
+                            weight: 2,
+                            fillColor: '#6aa84f',
+                            fillOpacity: 0.35
+                        };
+                    },
+
+                    // Popup tiap feature
+                    onEachFeature: function(feature, layer) {
+
+                        // Ambil atribut nama
+                        var namaWilayah =
+                            feature.properties.nama;
+
+                        layer.bindPopup(
+                            "<b>Nama Wilayah:</b> " +
+                            namaWilayah
+                        );
+                    }
+
+                }).addTo(map);
+
+            })
+
+            .catch(function(error) {
+
+                console.log(
+                    'Error loading GeoJSON:',
+                    error
+                );
+
+            });
+
+    </script>
+
+</body>
+</html>
